@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { 
   Home, 
   FilePlus, 
@@ -11,7 +11,8 @@ import {
   HelpCircle,
   X,
   QrCode,
-  User
+  User,
+  Briefcase
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,9 @@ function SidebarItem({ icon: Icon, href, label, isActive }: SidebarItemProps) {
 }
 
 export function AppSidebar({ sidebarOpen, setSidebarOpen }: AppSidebarProps) {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   // Close sidebar when route changes (on mobile)
   useEffect(() => {
     const handleRouteChange = () => {
@@ -110,16 +114,17 @@ export function AppSidebar({ sidebarOpen, setSidebarOpen }: AppSidebarProps) {
           </Button>
         </div>
         <nav className="flex flex-col gap-1 p-4">
-          <SidebarItem icon={Home} href="/" label="Dashboard" isActive={true} />
-          <SidebarItem icon={FilePlus} href="/document-verification" label="Document Verification" />
-          <SidebarItem icon={Fingerprint} href="/biometric-verification" label="Biometric Verification" />
-          <SidebarItem icon={QrCode} href="/qr-verify" label="QR Verification" />
-          <SidebarItem icon={BarChart3} href="/security-score" label="Security Score" />
-          <SidebarItem icon={User} href="/my-identity" label="My Identity" />
+          <SidebarItem icon={Home} href="/" label="Dashboard" isActive={currentPath === "/"} />
+          <SidebarItem icon={FilePlus} href="/document-verification" label="Document Verification" isActive={currentPath === "/document-verification"} />
+          <SidebarItem icon={Fingerprint} href="/biometric-verification" label="Biometric Verification" isActive={currentPath === "/biometric-verification"} />
+          <SidebarItem icon={Briefcase} href="/business-verification" label="Business Verification" isActive={currentPath === "/business-verification"} />
+          <SidebarItem icon={QrCode} href="/qr-verify" label="QR Verification" isActive={currentPath === "/qr-verify"} />
+          <SidebarItem icon={BarChart3} href="/security-score" label="Security Score" isActive={currentPath === "/security-score"} />
+          <SidebarItem icon={User} href="/my-identity" label="My Identity" isActive={currentPath === "/my-identity"} />
           
           <div className="mt-auto pt-4 border-t space-y-1">
-            <SidebarItem icon={Settings} href="/settings" label="Settings" />
-            <SidebarItem icon={HelpCircle} href="/help" label="Help & Support" />
+            <SidebarItem icon={Settings} href="/settings" label="Settings" isActive={currentPath === "/settings"} />
+            <SidebarItem icon={HelpCircle} href="/help" label="Help & Support" isActive={currentPath === "/help"} />
           </div>
         </nav>
       </aside>
