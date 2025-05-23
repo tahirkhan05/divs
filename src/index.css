@@ -29,8 +29,8 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 214.3 31.8% 84%;
+    --input: 214.3 31.8% 84%;
     --ring: 221 83% 53%;
 
     --radius: 0.75rem;
@@ -41,7 +41,7 @@
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 220 13% 85%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -103,10 +103,27 @@
   }
 
   .card-gradient {
-    @apply bg-gradient-to-br from-card to-secondary/5 backdrop-blur-sm border border-border;
+    @apply bg-gradient-to-br from-card to-secondary/5 backdrop-blur-sm border border-border shadow-sm;
   }
 
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-verification;
+  }
+}
+
+@layer components {
+  /* Light mode specific improvements */
+  .light .card,
+  .light [class*="border"] {
+    @apply shadow-sm;
+  }
+  
+  .light .border {
+    @apply border-border/90;
+  }
+  
+  /* Enhanced hover effects for sidebar buttons in light mode */
+  .light button[class*="hover\\:bg-secondary"] {
+    @apply hover:shadow-sm hover:bg-secondary/15;
   }
 }

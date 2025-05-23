@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -18,7 +17,7 @@ const MyIdentity = () => {
       
       <div className={cn(
         "flex flex-col min-h-screen transition-all duration-300",
-        sidebarOpen ? "lg:ml-72" : ""
+        "lg:ml-72"
       )}>
         <AppHeader setSidebarOpen={setSidebarOpen} />
         
