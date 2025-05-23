@@ -118,10 +118,6 @@
     @apply shadow-sm;
   }
   
-  .light .border {
-    @apply border-border/90;
-  }
-  
   /* Enhanced hover effects for sidebar buttons in light mode */
   .light button[class*="hover\\:bg-secondary"] {
     @apply hover:shadow-sm hover:bg-secondary/15;
@@ -149,5 +145,16 @@
   /* Better button contrast */
   .light .bg-secondary {
     @apply bg-secondary/80 border border-secondary/30;
+  }
+
+  /* Enhanced borders for light mode without circular dependency */
+  .light input,
+  .light textarea,
+  .light select {
+    @apply border-gray-300/90;
+  }
+
+  .light .border-input {
+    @apply border-gray-300/90;
   }
 }
