@@ -126,4 +126,28 @@
   .light button[class*="hover\\:bg-secondary"] {
     @apply hover:shadow-sm hover:bg-secondary/15;
   }
+
+  /* Better tab visibility in light mode */
+  .light [data-state="active"] {
+    @apply bg-background border border-border/60 shadow-sm;
+  }
+
+  .light [data-state="inactive"] {
+    @apply bg-muted/40 border border-border/30;
+  }
+
+  /* Improved form elements in light mode */
+  .light .bg-muted {
+    @apply bg-muted/60 border border-border/40;
+  }
+
+  /* Enhanced card visibility */
+  .light .bg-card {
+    @apply border border-border/50 shadow-sm;
+  }
+
+  /* Better button contrast */
+  .light .bg-secondary {
+    @apply bg-secondary/80 border border-secondary/30;
+  }
 }

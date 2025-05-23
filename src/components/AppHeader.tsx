@@ -1,10 +1,21 @@
 
 import { useState } from "react";
-import { Bell, Menu, Search } from "lucide-react";
+import { Menu, LogIn, LogOut } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { SearchBar } from "./SearchBar";
+import { NotificationsDropdown } from "./NotificationsDropdown";
+import { AuthDialog } from "./AuthDialog";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface AppHeaderProps {
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -12,6 +23,12 @@ interface AppHeaderProps {
 
 export function AppHeader({ setSidebarOpen }: AppHeaderProps) {
   const [searchVisible, setSearchVisible] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/80 backdrop-blur-md px-4 md:px-6">
@@ -38,37 +55,46 @@ export function AppHeader({ setSidebarOpen }: AppHeaderProps) {
       </div>
 
       <div className={`flex-1 ${searchVisible ? "flex" : "hidden md:flex"} justify-center px-4`}>
-        <div className="w-full max-w-sm relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search verifications..."
-            className="w-full pl-8 rounded-full bg-background"
-          />
-        </div>
+        <SearchBar />
       </div>
 
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setSearchVisible(!searchVisible)}
-        >
-          <Search className="h-5 w-5" />
-          <span className="sr-only">Toggle search</span>
-        </Button>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        <NotificationsDropdown />
         <ThemeToggle />
-        <Avatar>
-          <AvatarImage src="" />
-          <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
-        </Avatar>
+        
+        {isAuthenticated ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="cursor-pointer">
+                <AvatarImage src={user?.avatar} />
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {user?.name?.charAt(0).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button onClick={() => setAuthDialogOpen(true)}>
+            <LogIn className="mr-2 h-4 w-4" />
+            Login
+          </Button>
+        )}
       </div>
+
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </header>
   );
 }
