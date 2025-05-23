@@ -17,7 +17,7 @@ const SecurityScore = () => {
       
       <div className={cn(
         "flex flex-col min-h-screen transition-all duration-300",
-        sidebarOpen ? "lg:ml-72" : ""
+        "lg:ml-72"
       )}>
         <AppHeader setSidebarOpen={setSidebarOpen} />
         
