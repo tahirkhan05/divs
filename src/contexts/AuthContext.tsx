@@ -4,14 +4,15 @@ import React, { createContext, useContext, useState } from 'react';
 interface User {
   id: string;
   name: string;
-  email: string;
+  phone: string;
   avatar?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => boolean;
-  signup: (name: string, email: string, password: string) => boolean;
+  login: (phone: string, otp: string) => boolean;
+  signup: (name: string, phone: string, otp: string) => boolean;
+  sendOTP: (phone: string) => boolean;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -25,31 +26,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const login = (email: string, password: string): boolean => {
-    // Mock login - in real app, this would validate against backend
-    if (email && password) {
-      const mockUser: User = {
-        id: '1',
-        name: email.split('@')[0],
-        email,
-      };
-      setUser(mockUser);
-      localStorage.setItem('divs_user', JSON.stringify(mockUser));
+  const sendOTP = (phone: string): boolean => {
+    // Mock OTP send - in real app, this would send OTP via SMS
+    if (phone && phone.length >= 10) {
+      console.log(`Mock OTP sent to ${phone}: 123456`);
       return true;
     }
     return false;
   };
 
-  const signup = (name: string, email: string, password: string): boolean => {
-    // Mock signup - in real app, this would create user in backend
-    if (name && email && password) {
-      const mockUser: User = {
+  const login = (phone: string, otp: string): boolean => {
+    // Mock login with OTP verification - in real app, this would validate OTP
+    if (phone && otp === '123456') {
+      const existingUsers = JSON.parse(localStorage.getItem('divs_registered_users') || '[]');
+      const existingUser = existingUsers.find((u: User) => u.phone === phone);
+      
+      if (existingUser) {
+        setUser(existingUser);
+        localStorage.setItem('divs_user', JSON.stringify(existingUser));
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const signup = (name: string, phone: string, otp: string): boolean => {
+    // Mock signup with OTP verification
+    if (name && phone && otp === '123456') {
+      const newUser: User = {
         id: Date.now().toString(),
         name,
-        email,
+        phone,
       };
-      setUser(mockUser);
-      localStorage.setItem('divs_user', JSON.stringify(mockUser));
+      
+      // Store user in registered users list
+      const existingUsers = JSON.parse(localStorage.getItem('divs_registered_users') || '[]');
+      const updatedUsers = [...existingUsers, newUser];
+      localStorage.setItem('divs_registered_users', JSON.stringify(updatedUsers));
+      
+      // Set as current user
+      setUser(newUser);
+      localStorage.setItem('divs_user', JSON.stringify(newUser));
       return true;
     }
     return false;
@@ -65,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user, 
       login, 
       signup, 
+      sendOTP,
       logout, 
       isAuthenticated: !!user 
     }}>
