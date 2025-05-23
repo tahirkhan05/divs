@@ -103,7 +103,7 @@
   }
 
   .card-gradient {
-    @apply bg-gradient-to-br from-card to-secondary/5 backdrop-blur-sm;
+    @apply bg-gradient-to-br from-card to-secondary/5 backdrop-blur-sm border border-border;
   }
 
   .text-gradient {

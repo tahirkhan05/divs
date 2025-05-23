@@ -35,8 +35,10 @@ function SidebarItem({ icon: Icon, href, label, isActive }: SidebarItemProps) {
       <Button
         variant={isActive ? "secondary" : "ghost"}
         className={cn(
-          "w-full justify-start gap-3 font-medium",
-          isActive ? "bg-secondary/10 text-secondary" : ""
+          "w-full justify-start gap-3 font-medium border-transparent",
+          isActive 
+            ? "bg-secondary/20 text-secondary border-secondary/30 border" 
+            : "hover:bg-secondary/10 hover:border-secondary/20 hover:border"
         )}
       >
         <Icon className={cn("h-5 w-5", isActive ? "text-secondary" : "text-muted-foreground")} />
@@ -92,11 +94,12 @@ export function AppSidebar({ sidebarOpen, setSidebarOpen }: AppSidebarProps) {
       <aside
         id="app-sidebar"
         className={cn(
-          "fixed top-0 bottom-0 left-0 z-50 w-72 border-r bg-sidebar transition-transform duration-300 ease-in-out lg:z-0 lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed top-0 bottom-0 left-0 z-50 w-72 border-r border-border bg-sidebar transition-transform duration-300 ease-in-out",
+          "lg:z-0 lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="flex h-16 items-center px-4 border-b">
+        <div className="flex h-16 items-center px-4 border-b border-border">
           <Link to="/" className="flex items-center gap-2">
             <div className="bg-gradient-verification p-1 rounded-md w-8 h-8 flex items-center justify-center">
               <ShieldCheck className="h-5 w-5 text-white" />
@@ -122,7 +125,7 @@ export function AppSidebar({ sidebarOpen, setSidebarOpen }: AppSidebarProps) {
           <SidebarItem icon={BarChart3} href="/security-score" label="Security Score" isActive={currentPath === "/security-score"} />
           <SidebarItem icon={User} href="/my-identity" label="My Identity" isActive={currentPath === "/my-identity"} />
           
-          <div className="mt-auto pt-4 border-t space-y-1">
+          <div className="mt-auto pt-4 border-t border-border space-y-1">
             <SidebarItem icon={Settings} href="/settings" label="Settings" isActive={currentPath === "/settings"} />
             <SidebarItem icon={HelpCircle} href="/help" label="Help & Support" isActive={currentPath === "/help"} />
           </div>
