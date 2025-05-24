@@ -5,15 +5,17 @@ interface User {
   id: string;
   name: string;
   phone: string;
+  email: string;
   avatar?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (phone: string, otp: string) => boolean;
-  signup: (name: string, phone: string, otp: string) => boolean;
+  signup: (name: string, email: string, phone: string, otp: string) => boolean;
   sendOTP: (phone: string) => boolean;
   logout: () => void;
+  deleteAccount: () => void;
   isAuthenticated: boolean;
 }
 
@@ -50,12 +52,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
-  const signup = (name: string, phone: string, otp: string): boolean => {
+  const signup = (name: string, email: string, phone: string, otp: string): boolean => {
     // Mock signup with OTP verification
-    if (name && phone && otp === '123456') {
+    if (name && email && phone && otp === '123456') {
       const newUser: User = {
         id: Date.now().toString(),
         name,
+        email,
         phone,
       };
       
@@ -77,13 +80,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('divs_user');
   };
 
+  const deleteAccount = () => {
+    // Remove user from registered users
+    const existingUsers = JSON.parse(localStorage.getItem('divs_registered_users') || '[]');
+    const updatedUsers = existingUsers.filter((u: User) => u.id !== user?.id);
+    localStorage.setItem('divs_registered_users', JSON.stringify(updatedUsers));
+    
+    // Clear current user
+    setUser(null);
+    localStorage.removeItem('divs_user');
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
       login, 
       signup, 
       sendOTP,
-      logout, 
+      logout,
+      deleteAccount,
       isAuthenticated: !!user 
     }}>
       {children}

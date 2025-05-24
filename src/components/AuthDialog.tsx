@@ -18,6 +18,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const [loginPhone, setLoginPhone] = useState("");
   const [loginOTP, setLoginOTP] = useState("");
   const [signupName, setSignupName] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
   const [signupPhone, setSignupPhone] = useState("");
   const [signupOTP, setSignupOTP] = useState("");
   const [loginOTPSent, setLoginOTPSent] = useState(false);
@@ -78,7 +79,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    if (signup(signupName, signupPhone, signupOTP)) {
+    if (signup(signupName, signupEmail, signupPhone, signupOTP)) {
       toast({
         title: "Account created",
         description: "Welcome to DIVS!",
@@ -102,6 +103,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
   const resetSignupForm = () => {
     setSignupName("");
+    setSignupEmail("");
     setSignupPhone("");
     setSignupOTP("");
     setSignupOTPSent(false);
@@ -173,6 +175,17 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   placeholder="John Doe"
                   value={signupName}
                   onChange={(e) => setSignupName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-email">Email Address</Label>
+                <Input
+                  id="signup-email"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
                   required
                 />
               </div>

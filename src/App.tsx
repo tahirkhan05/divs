@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import DocumentVerification from "./pages/DocumentVerification";
 import BiometricVerification from "./pages/BiometricVerification";
@@ -29,14 +30,38 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/document-verification" element={<DocumentVerification />} />
-              <Route path="/biometric-verification" element={<BiometricVerification />} />
-              <Route path="/business-verification" element={<BusinessVerification />} />
-              <Route path="/qr-verify" element={<QrVerify />} />
-              <Route path="/security-score" element={<SecurityScore />} />
+              <Route path="/document-verification" element={
+                <ProtectedRoute>
+                  <DocumentVerification />
+                </ProtectedRoute>
+              } />
+              <Route path="/biometric-verification" element={
+                <ProtectedRoute>
+                  <BiometricVerification />
+                </ProtectedRoute>
+              } />
+              <Route path="/business-verification" element={
+                <ProtectedRoute>
+                  <BusinessVerification />
+                </ProtectedRoute>
+              } />
+              <Route path="/qr-verify" element={
+                <ProtectedRoute>
+                  <QrVerify />
+                </ProtectedRoute>
+              } />
+              <Route path="/security-score" element={
+                <ProtectedRoute>
+                  <SecurityScore />
+                </ProtectedRoute>
+              } />
               <Route path="/my-identity" element={<MyIdentity />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/help" element={<HelpSupport />} />
+              <Route path="/help" element={
+                <ProtectedRoute>
+                  <HelpSupport />
+                </ProtectedRoute>
+              } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

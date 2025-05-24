@@ -1,6 +1,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthDialog } from "./AuthDialog";
+import { ThemeToggle } from "./ThemeToggle";
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+        
         <div className="max-w-md w-full text-center space-y-8">
           <div className="space-y-4">
             <div className="bg-gradient-verification p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto">
