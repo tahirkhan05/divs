@@ -123,7 +123,7 @@ export function AppSidebar({ sidebarOpen, setSidebarOpen }: AppSidebarProps) {
           <SidebarItem icon={FilePlus} href="/document-verification" label="Document Verification" isActive={currentPath === "/document-verification"} />
           <SidebarItem icon={Fingerprint} href="/biometric-verification" label="Biometric Verification" isActive={currentPath === "/biometric-verification"} />
           <SidebarItem icon={Briefcase} href="/business-verification" label="Business Verification" isActive={currentPath === "/business-verification"} />
-          <SidebarItem icon={QrCode} href="/qr-verify" label="QR Verification" isActive={currentPath === "/qr-verify"} />
+          <SidebarItem icon={QrCode} href="/qr-verify" label="Identity Share" isActive={currentPath === "/qr-verify"} />
           <SidebarItem icon={BarChart3} href="/security-score" label="Security Score" isActive={currentPath === "/security-score"} />
           <SidebarItem icon={User} href="/my-identity" label="My Identity" isActive={currentPath === "/my-identity"} />
           
