@@ -1,24 +1,8 @@
 
-export interface IdentityShareData {
-  idOnly: boolean;
-  addressInfo: boolean;
-  financialData: boolean;
-  fullAccess: boolean;
-  expiryTime: string;
-  verificationMethod: 'qr' | 'code';
-}
-
-export interface AccessCode {
-  code: string;
-  expiresAt: Date;
-  permissions: IdentityShareData;
-}
-
-export interface VerificationResult {
-  success: boolean;
-  data?: any;
-  error?: string;
-}
+import { ApiClient } from './apiClient';
+import { Validators } from '@/utils/validators';
+import { EXPIRY_OPTIONS, VERIFICATION_METHODS } from '@/constants';
+import { IdentityShareData, AccessCode, VerificationResult, IdentityShare } from '@/types/identity';
 
 export class IdentityService {
   static generateAccessCode(): string {
@@ -26,36 +10,58 @@ export class IdentityService {
   }
 
   static async createIdentityShare(data: IdentityShareData): Promise<AccessCode> {
-    // This would integrate with backend API
+    // Validate data
+    if (!data.idOnly && !data.addressInfo && !data.financialData && !data.fullAccess) {
+      throw new Error('At least one permission must be selected');
+    }
+
     const code = this.generateAccessCode();
     const expiresAt = this.calculateExpiryDate(data.expiryTime);
     
-    return {
+    const accessCode: AccessCode = {
       code,
       expiresAt,
       permissions: data
     };
+
+    // This would integrate with backend API
+    console.log('Creating identity share:', accessCode);
+    
+    return accessCode;
   }
 
   static async verifyAccessCode(code: string): Promise<VerificationResult> {
-    // This would integrate with backend API
-    // Mock verification for now
-    if (code.length === 6) {
+    const codeValidation = Validators.accessCode(code);
+    
+    if (!codeValidation.valid) {
       return {
-        success: Math.random() > 0.1, // 90% success rate
-        data: {
-          name: "Jane Smith",
-          idNumber: "•••• •••• 4321",
-          verifiedAt: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-        }
+        success: false,
+        error: codeValidation.error
       };
     }
-    
-    return {
-      success: false,
-      error: "Invalid access code"
-    };
+
+    // This would integrate with backend API
+    // Mock verification for now
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (Math.random() > 0.1) { // 90% success rate
+          resolve({
+            success: true,
+            data: {
+              name: "Jane Smith",
+              idNumber: "•••• •••• 4321",
+              verifiedAt: new Date().toISOString(),
+              expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+            }
+          });
+        } else {
+          resolve({
+            success: false,
+            error: "Invalid or expired access code"
+          });
+        }
+      }, 2000);
+    });
   }
 
   static calculateExpiryDate(expiryTime: string): Date {
@@ -77,13 +83,19 @@ export class IdentityService {
   }
 
   static getExpiryLabel(expiryTime: string): string {
-    switch (expiryTime) {
-      case "1h": return "1 hour";
-      case "6h": return "6 hours";
-      case "24h": return "24 hours";
-      case "7d": return "7 days";
-      case "30d": return "30 days";
-      default: return "24 hours";
-    }
+    const option = EXPIRY_OPTIONS.find(opt => opt.value === expiryTime);
+    return option ? option.label : "24 hours";
+  }
+
+  static async getIdentityShares(): Promise<IdentityShare[]> {
+    // This would fetch from backend API
+    // Mock data for now
+    return [];
+  }
+
+  static async revokeIdentityShare(shareId: string): Promise<boolean> {
+    // This would integrate with backend API
+    console.log('Revoking identity share:', shareId);
+    return true;
   }
 }

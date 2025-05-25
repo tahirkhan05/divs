@@ -21,3 +21,14 @@ export interface SignupCredentials {
   email: string;
   otp: string;
 }
+
+export interface AuthResponse {
+  success: boolean;
+  user?: User;
+  error?: string;
+}
+
+export interface OTPResponse {
+  success: boolean;
+  error?: string;
+}
