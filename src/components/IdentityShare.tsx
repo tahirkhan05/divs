@@ -13,9 +13,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 export function IdentityShare() {
   const [tab, setTab] = useState("generate");
@@ -27,6 +29,7 @@ export function IdentityShare() {
   const [qrGenerated, setQrGenerated] = useState(false);
   const [codeGenerated, setCodeGenerated] = useState(false);
   const [accessCode, setAccessCode] = useState("");
+  const [inputAccessCode, setInputAccessCode] = useState("");
   const [expiryTime, setExpiryTime] = useState("24h");
   const [scanProgress, setScanProgress] = useState(0);
   const [scanComplete, setScanComplete] = useState(false);
@@ -73,10 +76,17 @@ export function IdentityShare() {
     return () => clearInterval(interval);
   };
 
+  const handleVerifyCode = () => {
+    if (inputAccessCode.length === 6) {
+      handleStartScan();
+    }
+  };
+
   const resetScan = () => {
     setScanProgress(0);
     setScanComplete(false);
     setAccessGranted(null);
+    setInputAccessCode("");
   };
 
   const resetGenerate = () => {
@@ -330,10 +340,30 @@ export function IdentityShare() {
                     </div>
                     
                     <div className="space-y-4">
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-medium">Enter 6-digit access code:</h4>
+                        <div className="flex justify-center">
+                          <InputOTP
+                            maxLength={6}
+                            value={inputAccessCode}
+                            onChange={setInputAccessCode}
+                          >
+                            <InputOTPGroup>
+                              <InputOTPSlot index={0} />
+                              <InputOTPSlot index={1} />
+                              <InputOTPSlot index={2} />
+                              <InputOTPSlot index={3} />
+                              <InputOTPSlot index={4} />
+                              <InputOTPSlot index={5} />
+                            </InputOTPGroup>
+                          </InputOTP>
+                        </div>
+                      </div>
+                      
                       <div className="bg-muted/50 p-4 rounded-lg">
                         <h4 className="text-sm font-medium mb-2">Instructions:</h4>
                         <ol className="text-sm space-y-2 list-decimal list-inside text-muted-foreground">
-                          <li>Scan QR code or enter the 6-digit access code</li>
+                          <li>Scan QR code or enter the 6-digit access code above</li>
                           <li>Ensure good lighting conditions for QR scanning</li>
                           <li>Wait for blockchain verification</li>
                           <li>View secured identity information</li>
@@ -341,7 +371,7 @@ export function IdentityShare() {
                       </div>
                       
                       <Button 
-                        onClick={handleStartScan} 
+                        onClick={inputAccessCode.length === 6 ? handleVerifyCode : handleStartScan} 
                         className="w-full"
                         disabled={scanProgress > 0 && scanProgress < 100}
                       >
@@ -351,7 +381,9 @@ export function IdentityShare() {
                             Verifying... {scanProgress}%
                           </>
                         ) : (
-                          <>Start Verification</>
+                          <>
+                            {inputAccessCode.length === 6 ? "Verify Code" : "Start QR Scan"}
+                          </>
                         )}
                       </Button>
                     </div>
