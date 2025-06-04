@@ -2,9 +2,14 @@
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function SecurityScoreCard() {
-  const score = 86;
+interface SecurityScoreCardProps {
+  score: number;
+  documentScore: number;
+  biometricScore: number;
+  businessScore: number;
+}
 
+export function SecurityScoreCard({ score, documentScore, biometricScore, businessScore }: SecurityScoreCardProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -47,33 +52,33 @@ export function SecurityScoreCard() {
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
               <span>Document verification</span>
-              <span className="font-medium">92%</span>
+              <span className="font-medium">{documentScore}%</span>
             </div>
-            <Progress value={92} className="h-2" />
+            <Progress value={documentScore} className="h-2" />
           </div>
           
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
               <span>Biometric match</span>
-              <span className="font-medium">88%</span>
+              <span className="font-medium">{biometricScore}%</span>
             </div>
-            <Progress value={88} className="h-2" />
+            <Progress value={biometricScore} className="h-2" />
+          </div>
+          
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm">
+              <span>Business verification</span>
+              <span className="font-medium">{businessScore}%</span>
+            </div>
+            <Progress value={businessScore} className="h-2" />
           </div>
           
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
               <span>Multi-factor security</span>
-              <span className="font-medium">100%</span>
+              <span className="font-medium">{Math.min(100, score + 10)}%</span>
             </div>
-            <Progress value={100} className="h-2" />
-          </div>
-          
-          <div className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span>Anti-fraud score</span>
-              <span className="font-medium">70%</span>
-            </div>
-            <Progress value={70} className="h-2" />
+            <Progress value={Math.min(100, score + 10)} className="h-2" />
           </div>
         </div>
       </CardContent>
