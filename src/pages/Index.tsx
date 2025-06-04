@@ -6,6 +6,10 @@ import { StatsCards } from "@/components/dashboard/StatsCards";
 import { SecurityScoreCard } from "@/components/dashboard/SecurityScoreCard";
 import { VerificationStatusCard } from "@/components/dashboard/VerificationStatusCard";
 import { RecentActivityCard } from "@/components/dashboard/RecentActivityCard";
+import { AuthDialog } from "@/components/AuthDialog";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
+import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { documentService } from "@/services/documentService";
 import { biometricService } from "@/services/biometricService";
@@ -14,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [dashboardData, setDashboardData] = useState({
     documents: [],
     biometrics: [],
@@ -72,44 +77,57 @@ const Index = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
-        <div className="max-w-md w-full mx-auto p-8">
-          <div className="text-center space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight">
-                Welcome to DIVS
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Decentralized Identity Verification System
-              </p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+        
+        <div className="max-w-md w-full text-center space-y-8">
+          <div className="space-y-4">
+            <div className="bg-gradient-verification p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto">
+              <ShieldCheck className="h-10 w-10 text-white" />
             </div>
-            
-            <div className="space-y-4 text-sm text-muted-foreground">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>AI-Powered Document Verification</span>
-              </div>
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span>DeepFace Biometric Authentication</span>
-              </div>
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span>Blockchain Identity Storage</span>
-              </div>
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <span>ML-Powered Security Scoring</span>
-              </div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Welcome to DIVS
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Decentralized Identity Verification System
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Please sign in or create an account to access the platform
+            </p>
+          </div>
+          
+          <div className="space-y-4 text-sm text-muted-foreground">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>AI-Powered Document Verification</span>
             </div>
-
-            <div className="mt-8 p-4 bg-muted/50 rounded-lg">
-              <p className="text-xs text-muted-foreground">
-                Please sign in to access your decentralized identity dashboard and start verifying your identity using advanced ML models.
-              </p>
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span>DeepFace Biometric Authentication</span>
+            </div>
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span>Blockchain Identity Storage</span>
+            </div>
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+              <span>ML-Powered Security Scoring</span>
             </div>
           </div>
+          
+          <div className="space-y-4">
+            <Button onClick={() => setAuthDialogOpen(true)} className="w-full" size="lg">
+              Get Started
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Secure • Decentralized • Verified
+            </p>
+          </div>
         </div>
+        
+        <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
       </div>
     );
   }
