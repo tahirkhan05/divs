@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
-import { Phone } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 
 interface AuthDialogProps {
   open: boolean;
@@ -15,98 +14,56 @@ interface AuthDialogProps {
 }
 
 export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
-  const [loginPhone, setLoginPhone] = useState("");
-  const [loginOTP, setLoginOTP] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPhone, setSignupPhone] = useState("");
-  const [signupOTP, setSignupOTP] = useState("");
-  const [loginOTPSent, setLoginOTPSent] = useState(false);
-  const [signupOTPSent, setSignupOTPSent] = useState(false);
+  const [signupPassword, setSignupPassword] = useState("");
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   
-  const { login, signup, sendOTP } = useAuth();
-  const { toast } = useToast();
+  const { login, signup } = useAuth();
 
-  const handleSendLoginOTP = () => {
-    if (sendOTP(loginPhone)) {
-      setLoginOTPSent(true);
-      toast({
-        title: "OTP Sent",
-        description: `Verification code sent to ${loginPhone}. Use 123456 for demo.`,
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: "Please enter a valid phone number.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSendSignupOTP = () => {
-    if (sendOTP(signupPhone)) {
-      setSignupOTPSent(true);
-      toast({
-        title: "OTP Sent",
-        description: `Verification code sent to ${signupPhone}. Use 123456 for demo.`,
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: "Please enter a valid phone number.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (login(loginPhone, loginOTP)) {
-      toast({
-        title: "Login successful",
-        description: "Welcome back!",
-      });
+    setIsLoading(true);
+    
+    const success = await login(loginEmail, loginPassword);
+    if (success) {
       onOpenChange(false);
       resetLoginForm();
-    } else {
-      toast({
-        title: "Login failed",
-        description: "Invalid phone number or OTP. Make sure you're registered and use OTP: 123456",
-        variant: "destructive",
-      });
     }
+    setIsLoading(false);
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (signup(signupName, signupEmail, signupPhone, signupOTP)) {
-      toast({
-        title: "Account created",
-        description: "Welcome to DIVS!",
-      });
+    
+    if (signupPassword !== signupConfirmPassword) {
+      return;
+    }
+    
+    setIsLoading(true);
+    const success = await signup(signupName, signupEmail, signupPhone, signupPassword);
+    if (success) {
       onOpenChange(false);
       resetSignupForm();
-    } else {
-      toast({
-        title: "Signup failed",
-        description: "Please check your information and use OTP: 123456",
-        variant: "destructive",
-      });
     }
+    setIsLoading(false);
   };
 
   const resetLoginForm = () => {
-    setLoginPhone("");
-    setLoginOTP("");
-    setLoginOTPSent(false);
+    setLoginEmail("");
+    setLoginPassword("");
   };
 
   const resetSignupForm = () => {
     setSignupName("");
     setSignupEmail("");
     setSignupPhone("");
-    setSignupOTP("");
-    setSignupOTPSent(false);
+    setSignupPassword("");
+    setSignupConfirmPassword("");
   };
 
   return (
@@ -123,45 +80,37 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           <TabsContent value="login" className="space-y-4">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="login-phone">Phone Number</Label>
-                <div className="flex gap-2">
+                <Label htmlFor="login-email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="login-phone"
-                    type="tel"
-                    placeholder="+1234567890"
-                    value={loginPhone}
-                    onChange={(e) => setLoginPhone(e.target.value)}
+                    id="login-email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
                     required
-                    className="flex-1"
+                    className="pl-10"
                   />
-                  <Button
-                    type="button"
-                    onClick={handleSendLoginOTP}
-                    disabled={!loginPhone || loginOTPSent}
-                    variant="outline"
-                  >
-                    <Phone className="h-4 w-4 mr-1" />
-                    {loginOTPSent ? "Sent" : "Send OTP"}
-                  </Button>
                 </div>
               </div>
-              {loginOTPSent && (
-                <div className="space-y-2">
-                  <Label htmlFor="login-otp">Enter OTP</Label>
+              <div className="space-y-2">
+                <Label htmlFor="login-password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="login-otp"
-                    type="text"
-                    placeholder="123456"
-                    value={loginOTP}
-                    onChange={(e) => setLoginOTP(e.target.value)}
+                    id="login-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
                     required
-                    maxLength={6}
+                    className="pl-10"
                   />
-                  <p className="text-xs text-muted-foreground">Demo OTP: 123456</p>
                 </div>
-              )}
-              <Button type="submit" className="w-full" disabled={!loginOTPSent || !loginOTP}>
-                Login
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Login"}
               </Button>
             </form>
           </TabsContent>
@@ -180,55 +129,61 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-email">Email Address</Label>
-                <Input
-                  id="signup-email"
-                  type="email"
-                  placeholder="john@example.com"
-                  value={signupEmail}
-                  onChange={(e) => setSignupEmail(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={signupEmail}
+                    onChange={(e) => setSignupEmail(e.target.value)}
+                    required
+                    className="pl-10"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-phone">Phone Number</Label>
-                <div className="flex gap-2">
+                <Input
+                  id="signup-phone"
+                  type="tel"
+                  placeholder="+1234567890"
+                  value={signupPhone}
+                  onChange={(e) => setSignupPhone(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="signup-phone"
-                    type="tel"
-                    placeholder="+1234567890"
-                    value={signupPhone}
-                    onChange={(e) => setSignupPhone(e.target.value)}
+                    id="signup-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={signupPassword}
+                    onChange={(e) => setSignupPassword(e.target.value)}
                     required
-                    className="flex-1"
+                    className="pl-10"
                   />
-                  <Button
-                    type="button"
-                    onClick={handleSendSignupOTP}
-                    disabled={!signupPhone || signupOTPSent}
-                    variant="outline"
-                  >
-                    <Phone className="h-4 w-4 mr-1" />
-                    {signupOTPSent ? "Sent" : "Send OTP"}
-                  </Button>
                 </div>
               </div>
-              {signupOTPSent && (
-                <div className="space-y-2">
-                  <Label htmlFor="signup-otp">Enter OTP</Label>
+              <div className="space-y-2">
+                <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="signup-otp"
-                    type="text"
-                    placeholder="123456"
-                    value={signupOTP}
-                    onChange={(e) => setSignupOTP(e.target.value)}
+                    id="signup-confirm-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={signupConfirmPassword}
+                    onChange={(e) => setSignupConfirmPassword(e.target.value)}
                     required
-                    maxLength={6}
+                    className="pl-10"
                   />
-                  <p className="text-xs text-muted-foreground">Demo OTP: 123456</p>
                 </div>
-              )}
-              <Button type="submit" className="w-full" disabled={!signupOTPSent || !signupOTP}>
-                Create Account
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading || signupPassword !== signupConfirmPassword}>
+                {isLoading ? "Creating account..." : "Create Account"}
               </Button>
             </form>
           </TabsContent>

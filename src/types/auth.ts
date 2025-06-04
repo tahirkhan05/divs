@@ -1,25 +1,22 @@
 
-export interface User {
-  name: string;
-  phone: string;
-  email: string;
-}
+import { User, Session } from '@supabase/supabase-js';
 
 export interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
+  session: Session | null;
 }
 
 export interface LoginCredentials {
-  phone: string;
-  otp: string;
+  email: string;
+  password: string;
 }
 
 export interface SignupCredentials {
   name: string;
   phone: string;
   email: string;
-  otp: string;
+  password: string;
 }
 
 export interface AuthResponse {

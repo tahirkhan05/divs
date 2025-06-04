@@ -9,16 +9,309 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      activity_logs: {
+        Row: {
+          activity_description: string
+          activity_type: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_description: string
+          activity_type: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_description?: string
+          activity_type?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      biometric_verifications: {
+        Row: {
+          biometric_type: Database["public"]["Enums"]["biometric_type"]
+          blockchain_hash: string | null
+          confidence_score: number | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          liveness_score: number | null
+          status: Database["public"]["Enums"]["verification_status"] | null
+          template_hash: string
+          user_id: string
+          verification_metadata: Json | null
+          verified_at: string | null
+        }
+        Insert: {
+          biometric_type: Database["public"]["Enums"]["biometric_type"]
+          blockchain_hash?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          liveness_score?: number | null
+          status?: Database["public"]["Enums"]["verification_status"] | null
+          template_hash: string
+          user_id: string
+          verification_metadata?: Json | null
+          verified_at?: string | null
+        }
+        Update: {
+          biometric_type?: Database["public"]["Enums"]["biometric_type"]
+          blockchain_hash?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          liveness_score?: number | null
+          status?: Database["public"]["Enums"]["verification_status"] | null
+          template_hash?: string
+          user_id?: string
+          verification_metadata?: Json | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
+      business_verifications: {
+        Row: {
+          business_name: string
+          business_type: string | null
+          created_at: string | null
+          documents: Json | null
+          id: string
+          registration_number: string
+          scheduled_at: string | null
+          status: Database["public"]["Enums"]["verification_status"] | null
+          user_id: string
+          verification_metadata: Json | null
+          verified_at: string | null
+        }
+        Insert: {
+          business_name: string
+          business_type?: string | null
+          created_at?: string | null
+          documents?: Json | null
+          id?: string
+          registration_number: string
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["verification_status"] | null
+          user_id: string
+          verification_metadata?: Json | null
+          verified_at?: string | null
+        }
+        Update: {
+          business_name?: string
+          business_type?: string | null
+          created_at?: string | null
+          documents?: Json | null
+          id?: string
+          registration_number?: string
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["verification_status"] | null
+          user_id?: string
+          verification_metadata?: Json | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
+      document_verifications: {
+        Row: {
+          blockchain_hash: string | null
+          confidence_score: number | null
+          created_at: string | null
+          document_type: Database["public"]["Enums"]["document_type"]
+          expires_at: string | null
+          extracted_data: Json | null
+          file_name: string
+          file_url: string
+          id: string
+          status: Database["public"]["Enums"]["verification_status"] | null
+          user_id: string
+          verification_metadata: Json | null
+          verified_at: string | null
+        }
+        Insert: {
+          blockchain_hash?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          document_type: Database["public"]["Enums"]["document_type"]
+          expires_at?: string | null
+          extracted_data?: Json | null
+          file_name: string
+          file_url: string
+          id?: string
+          status?: Database["public"]["Enums"]["verification_status"] | null
+          user_id: string
+          verification_metadata?: Json | null
+          verified_at?: string | null
+        }
+        Update: {
+          blockchain_hash?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          document_type?: Database["public"]["Enums"]["document_type"]
+          expires_at?: string | null
+          extracted_data?: Json | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          status?: Database["public"]["Enums"]["verification_status"] | null
+          user_id?: string
+          verification_metadata?: Json | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
+      identity_shares: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          permissions: Json
+          qr_data: string | null
+          share_code: string | null
+          used_at: string | null
+          used_by: string | null
+          user_id: string
+          verification_method: Database["public"]["Enums"]["verification_method"]
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          permissions: Json
+          qr_data?: string | null
+          share_code?: string | null
+          used_at?: string | null
+          used_by?: string | null
+          user_id: string
+          verification_method: Database["public"]["Enums"]["verification_method"]
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          permissions?: Json
+          qr_data?: string | null
+          share_code?: string | null
+          used_at?: string | null
+          used_by?: string | null
+          user_id?: string
+          verification_method?: Database["public"]["Enums"]["verification_method"]
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: Json | null
+          avatar_url: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: Json | null
+          avatar_url?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          id: string
+          name: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: Json | null
+          avatar_url?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      security_scores: {
+        Row: {
+          biometric_score: number
+          business_score: number | null
+          calculated_at: string | null
+          document_score: number
+          id: string
+          identity_score: number
+          overall_score: number
+          score_breakdown: Json | null
+          user_id: string
+        }
+        Insert: {
+          biometric_score: number
+          business_score?: number | null
+          calculated_at?: string | null
+          document_score: number
+          id?: string
+          identity_score: number
+          overall_score: number
+          score_breakdown?: Json | null
+          user_id: string
+        }
+        Update: {
+          biometric_score?: number
+          business_score?: number | null
+          calculated_at?: string | null
+          document_score?: number
+          id?: string
+          identity_score?: number
+          overall_score?: number
+          score_breakdown?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_security_score: {
+        Args: { user_uuid: string }
+        Returns: number
+      }
     }
     Enums: {
-      [_ in never]: never
+      biometric_type: "fingerprint" | "face" | "voice" | "iris"
+      document_type:
+        | "passport"
+        | "drivers_license"
+        | "national_id"
+        | "birth_certificate"
+      verification_method: "qr" | "code"
+      verification_status:
+        | "pending"
+        | "processing"
+        | "verified"
+        | "rejected"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +426,22 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      biometric_type: ["fingerprint", "face", "voice", "iris"],
+      document_type: [
+        "passport",
+        "drivers_license",
+        "national_id",
+        "birth_certificate",
+      ],
+      verification_method: ["qr", "code"],
+      verification_status: [
+        "pending",
+        "processing",
+        "verified",
+        "rejected",
+        "expired",
+      ],
+    },
   },
 } as const

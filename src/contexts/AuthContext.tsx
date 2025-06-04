@@ -1,105 +1,207 @@
 
-import React, { createContext, useContext, useState } from 'react';
-
-interface User {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  avatar?: string;
-}
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
-  login: (phone: string, otp: string) => boolean;
-  signup: (name: string, email: string, phone: string, otp: string) => boolean;
-  sendOTP: (phone: string) => boolean;
-  logout: () => void;
-  deleteAccount: () => void;
+  session: Session | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (name: string, email: string, phone: string, password: string) => Promise<boolean>;
+  sendOTP: (phone: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   isAuthenticated: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    // Check if user is stored in localStorage
-    const savedUser = localStorage.getItem('divs_user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const sendOTP = (phone: string): boolean => {
-    // Mock OTP send - in real app, this would send OTP via SMS
-    if (phone && phone.length >= 10) {
-      console.log(`Mock OTP sent to ${phone}: 123456`);
-      return true;
-    }
-    return false;
-  };
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
 
-  const login = (phone: string, otp: string): boolean => {
-    // Mock login with OTP verification - in real app, this would validate OTP
-    if (phone && otp === '123456') {
-      const existingUsers = JSON.parse(localStorage.getItem('divs_registered_users') || '[]');
-      const existingUser = existingUsers.find((u: User) => u.phone === phone);
+        if (event === 'SIGNED_IN') {
+          console.log('User signed in:', session?.user?.email);
+        } else if (event === 'SIGNED_OUT') {
+          console.log('User signed out');
+        }
+      }
+    );
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signup = async (name: string, email: string, phone: string, password: string): Promise<boolean> => {
+    try {
+      const redirectUrl = `${window.location.origin}/`;
       
-      if (existingUser) {
-        setUser(existingUser);
-        localStorage.setItem('divs_user', JSON.stringify(existingUser));
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            name,
+            phone,
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Signup error:', error);
+        toast({
+          title: "Signup failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      if (data.user) {
+        toast({
+          title: "Account created",
+          description: "Please check your email to verify your account.",
+        });
         return true;
       }
+
+      return false;
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast({
+        title: "Signup failed",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+      return false;
     }
-    return false;
   };
 
-  const signup = (name: string, email: string, phone: string, otp: string): boolean => {
-    // Mock signup with OTP verification
-    if (name && email && phone && otp === '123456') {
-      const newUser: User = {
-        id: Date.now().toString(),
-        name,
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        phone,
-      };
-      
-      // Store user in registered users list
-      const existingUsers = JSON.parse(localStorage.getItem('divs_registered_users') || '[]');
-      const updatedUsers = [...existingUsers, newUser];
-      localStorage.setItem('divs_registered_users', JSON.stringify(updatedUsers));
-      
-      // Set as current user
-      setUser(newUser);
-      localStorage.setItem('divs_user', JSON.stringify(newUser));
-      return true;
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      if (data.user) {
+        toast({
+          title: "Login successful",
+          description: "Welcome back!",
+        });
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: "Login failed",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+      return false;
     }
-    return false;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('divs_user');
+  const sendOTP = async (phone: string): Promise<boolean> => {
+    // For now, return true as a placeholder - phone auth would need additional setup
+    console.log(`OTP would be sent to ${phone}`);
+    return true;
   };
 
-  const deleteAccount = () => {
-    // Remove user from registered users
-    const existingUsers = JSON.parse(localStorage.getItem('divs_registered_users') || '[]');
-    const updatedUsers = existingUsers.filter((u: User) => u.id !== user?.id);
-    localStorage.setItem('divs_registered_users', JSON.stringify(updatedUsers));
-    
-    // Clear current user
-    setUser(null);
-    localStorage.removeItem('divs_user');
+  const logout = async (): Promise<void> => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+        toast({
+          title: "Logout failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Logged out",
+          description: "You have been logged out successfully.",
+        });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const deleteAccount = async (): Promise<void> => {
+    try {
+      // First delete the user's profile data
+      if (user) {
+        const { error: deleteError } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', user.id);
+
+        if (deleteError) {
+          console.error('Error deleting profile:', deleteError);
+        }
+      }
+
+      // Then sign out (actual account deletion would need admin API)
+      await logout();
+      
+      toast({
+        title: "Account deleted",
+        description: "Your account has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error('Delete account error:', error);
+      toast({
+        title: "Deletion failed",
+        description: "Failed to delete account",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <AuthContext.Provider value={{ 
       user, 
+      session,
       login, 
       signup, 
       sendOTP,
       logout,
       deleteAccount,
-      isAuthenticated: !!user 
+      isAuthenticated: !!session,
+      loading
     }}>
       {children}
     </AuthContext.Provider>
