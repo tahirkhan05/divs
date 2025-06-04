@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
+import { getUserDisplayInfo } from "@/types/auth";
 
 const MyIdentity = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
+  const userInfo = getUserDisplayInfo(user);
 
   return (
     <ProtectedRoute>
@@ -51,26 +53,30 @@ const MyIdentity = () => {
                         <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4">
                           <User className="h-12 w-12 text-muted-foreground" />
                         </div>
-                        <h3 className="text-xl font-semibold">{user?.name}</h3>
+                        <h3 className="text-xl font-semibold">{userInfo.name}</h3>
                         <p className="text-sm text-muted-foreground">ID: DIVS-{user?.id?.slice(-8)}</p>
                       </div>
                       
                       <div className="space-y-2">
                         <div className="flex justify-between">
                           <span className="text-sm text-muted-foreground">Email</span>
-                          <span className="text-sm font-medium">{user?.email}</span>
+                          <span className="text-sm font-medium">{userInfo.email}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-muted-foreground">Phone</span>
-                          <span className="text-sm font-medium">{user?.phone}</span>
+                          <span className="text-sm font-medium">{userInfo.phone || 'Not provided'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-muted-foreground">Created</span>
-                          <span className="text-sm font-medium">May 12, 2025</span>
+                          <span className="text-sm font-medium">
+                            {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-muted-foreground">Last Updated</span>
-                          <span className="text-sm font-medium">May 18, 2025</span>
+                          <span className="text-sm font-medium">
+                            {user?.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'Unknown'}
+                          </span>
                         </div>
                       </div>
                       

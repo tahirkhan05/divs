@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { getUserDisplayInfo } from "@/types/auth";
 import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
@@ -35,6 +36,7 @@ const Settings = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { user, deleteAccount } = useAuth();
   const { toast } = useToast();
+  const userInfo = getUserDisplayInfo(user);
 
   const handleDeleteAccount = () => {
     deleteAccount();
@@ -86,15 +88,15 @@ const Settings = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="fullName">Full Name</Label>
-                          <Input id="fullName" defaultValue={user?.name} />
+                          <Input id="fullName" defaultValue={userInfo.name} />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="email">Email Address</Label>
-                          <Input id="email" defaultValue={user?.email} />
+                          <Input id="email" defaultValue={userInfo.email} />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="phone">Phone Number</Label>
-                          <Input id="phone" defaultValue={user?.phone} />
+                          <Input id="phone" defaultValue={userInfo.phone} />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="language">Preferred Language</Label>

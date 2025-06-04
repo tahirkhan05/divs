@@ -8,6 +8,7 @@ import { AuthDialog } from "./AuthDialog";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
+import { getUserDisplayInfo } from "@/types/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,8 @@ export function AppHeader({ setSidebarOpen }: AppHeaderProps) {
   const [searchVisible, setSearchVisible] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
+  
+  const userInfo = getUserDisplayInfo(user);
 
   const handleLogout = () => {
     logout();
@@ -68,17 +71,17 @@ export function AppHeader({ setSidebarOpen }: AppHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer">
-                <AvatarImage src={user?.avatar} />
+                <AvatarImage src={userInfo.avatar} />
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  {user?.name?.charAt(0).toUpperCase() || 'U'}
+                  {userInfo.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.name}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user?.phone}</p>
+                  <p className="text-sm font-medium leading-none">{userInfo.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{userInfo.phone || userInfo.email}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
