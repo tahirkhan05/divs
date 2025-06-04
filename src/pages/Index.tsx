@@ -4,127 +4,170 @@ import { AppHeader } from "@/components/AppHeader";
 import { AppSidebar } from "@/components/AppSidebar";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { SecurityScoreCard } from "@/components/dashboard/SecurityScoreCard";
+import { VerificationStatusCard } from "@/components/dashboard/VerificationStatusCard";
 import { RecentActivityCard } from "@/components/dashboard/RecentActivityCard";
-import { VerificationStatusList } from "@/components/VerificationStatusList";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Briefcase } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { documentService } from "@/services/documentService";
 import { biometricService } from "@/services/biometricService";
 import { securityScoreService } from "@/services/securityScoreService";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useAuth();
-  const [verificationItems, setVerificationItems] = useState<any[]>([]);
+  const [dashboardData, setDashboardData] = useState({
+    documents: [],
+    biometrics: [],
+    securityScore: null,
+    recentActivity: []
+  });
   const [loading, setLoading] = useState(true);
+  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
-    const fetchVerifications = async () => {
-      try {
-        const [documents, biometrics] = await Promise.all([
-          documentService.getUserDocuments(),
-          biometricService.getUserBiometrics()
-        ]);
-
-        const items = [
-          ...documents.map(doc => ({
-            title: `${doc.document_type.replace('_', ' ')} Verification`,
-            date: new Date(doc.created_at!).toLocaleDateString(),
-            status: doc.status === 'verified' ? 'finished' : 
-                   doc.status === 'processing' ? 'in-process' : 
-                   doc.status === 'pending' ? 'initiated' : 'finished'
-          })),
-          ...biometrics.map(bio => ({
-            title: `${bio.biometric_type} Authentication`,
-            date: new Date(bio.created_at!).toLocaleDateString(),
-            status: bio.status === 'verified' ? 'finished' : 
-                   bio.status === 'processing' ? 'in-process' : 
-                   bio.status === 'pending' ? 'initiated' : 'finished'
-          }))
-        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-        setVerificationItems(items);
-      } catch (error) {
-        console.error('Error fetching verifications:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user) {
-      fetchVerifications();
+    if (isAuthenticated && user) {
+      loadDashboardData();
     }
-  }, [user]);
+  }, [isAuthenticated, user]);
 
-  if (loading) {
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      // Load real data from services
+      const [documents, biometrics, securityScore, activityLogs] = await Promise.all([
+        documentService.getUserDocuments(),
+        biometricService.getUserBiometrics(),
+        securityScoreService.getUserSecurityScore(),
+        loadRecentActivity()
+      ]);
+
+      setDashboardData({
+        documents,
+        biometrics,
+        securityScore,
+        recentActivity: activityLogs
+      });
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadRecentActivity = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('activity_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error loading activity logs:', error);
+      return [];
+    }
+  };
+
+  if (!isAuthenticated) {
     return (
-      <ProtectedRoute>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>Loading your verification data...</p>
-          </div>
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-background">
-        <AppSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        
-        <div className={cn(
-          "flex flex-col min-h-screen transition-all duration-300",
-          "lg:ml-72"
-        )}>
-          <AppHeader setSidebarOpen={setSidebarOpen} />
-          
-          <main className="flex-1 container max-w-7xl mx-auto py-6 px-4 md:px-6 space-y-8">
-            <div className="flex flex-col gap-2">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
+        <div className="max-w-md w-full mx-auto p-8">
+          <div className="text-center space-y-6">
+            <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tight">
-                Welcome back, {user?.user_metadata?.name || user?.email || 'User'}
+                Welcome to DIVS
               </h1>
-              <p className="text-muted-foreground">
-                Here's an overview of your decentralized identity verification status.
+              <p className="text-lg text-muted-foreground">
+                Decentralized Identity Verification System
               </p>
             </div>
             
-            <div className="bg-muted/30 border border-muted rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-medium">Complete your verification</h2>
-                <p className="text-sm text-muted-foreground">
-                  Continue building your verified digital identity by completing additional verification steps.
-                </p>
+            <div className="space-y-4 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>AI-Powered Document Verification</span>
               </div>
-              <Link to="/business-verification">
-                <Button>
-                  <Briefcase className="mr-2 h-4 w-4" />
-                  Schedule Business Verification
-                </Button>
-              </Link>
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span>DeepFace Biometric Authentication</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span>Blockchain Identity Storage</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span>ML-Powered Security Scoring</span>
+              </div>
             </div>
-            
-            <StatsCards />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <SecurityScoreCard />
-              {verificationItems.length > 0 && (
-                <VerificationStatusList items={verificationItems} />
-              )}
+
+            <div className="mt-8 p-4 bg-muted/50 rounded-lg">
+              <p className="text-xs text-muted-foreground">
+                Please sign in to access your decentralized identity dashboard and start verifying your identity using advanced ML models.
+              </p>
             </div>
-            
-            <div className="grid grid-cols-1 gap-6">
-              <RecentActivityCard />
-            </div>
-          </main>
+          </div>
         </div>
       </div>
-    </ProtectedRoute>
+    );
+  }
+
+  const verifiedDocuments = dashboardData.documents.filter(doc => doc.status === 'verified').length;
+  const verifiedBiometrics = dashboardData.biometrics.filter(bio => bio.status === 'verified').length;
+  const overallScore = dashboardData.securityScore?.overall_score || 0;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <AppSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      <div className="lg:pl-72">
+        <AppHeader setSidebarOpen={setSidebarOpen} />
+        
+        <main className="py-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                AI-Powered Identity Dashboard
+              </h1>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Manage your decentralized identity with advanced ML verification
+              </p>
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                <StatsCards 
+                  verifiedDocuments={verifiedDocuments}
+                  verifiedBiometrics={verifiedBiometrics}
+                  overallScore={overallScore}
+                  totalVerifications={dashboardData.documents.length + dashboardData.biometrics.length}
+                />
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <SecurityScoreCard 
+                    score={overallScore}
+                    documentScore={dashboardData.securityScore?.document_score || 0}
+                    biometricScore={dashboardData.securityScore?.biometric_score || 0}
+                    businessScore={dashboardData.securityScore?.business_score || 0}
+                  />
+                  <VerificationStatusCard 
+                    documents={dashboardData.documents}
+                    biometrics={dashboardData.biometrics}
+                  />
+                </div>
+                
+                <RecentActivityCard activities={dashboardData.recentActivity} />
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
   );
 };
 
