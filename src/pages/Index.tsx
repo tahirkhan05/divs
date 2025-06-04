@@ -120,7 +120,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      <AppSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <div className="lg:pl-72">
         <AppHeader setSidebarOpen={setSidebarOpen} />
         

@@ -16,6 +16,10 @@ interface ActivityItemProps {
   hasAction?: boolean;
 }
 
+interface RecentActivityCardProps {
+  activities: any[];
+}
+
 function ActivityItem({ icon, title, description, timestamp, hasAction }: ActivityItemProps) {
   return (
     <div className="flex items-start gap-3 py-3">
@@ -37,7 +41,20 @@ function ActivityItem({ icon, title, description, timestamp, hasAction }: Activi
   );
 }
 
-export function RecentActivityCard() {
+export function RecentActivityCard({ activities }: RecentActivityCardProps) {
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'document_verification':
+        return <FileCheck className="h-4 w-4 text-identity-green" />;
+      case 'biometric_verification':
+        return <ShieldCheck className="h-4 w-4 text-primary" />;
+      case 'identity_share':
+        return <ArrowDownUp className="h-4 w-4 text-secondary" />;
+      default:
+        return <ShieldCheck className="h-4 w-4 text-primary" />;
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -45,25 +62,22 @@ export function RecentActivityCard() {
         <CardDescription>Your latest identity verification activities</CardDescription>
       </CardHeader>
       <CardContent className="divide-y">
-        <ActivityItem
-          icon={<ShieldCheck className="h-4 w-4 text-primary" />}
-          title="Identity verification requested"
-          description="Financial Corp. requested identity verification"
-          timestamp="Today, 11:42 AM"
-          hasAction={true}
-        />
-        <ActivityItem
-          icon={<ArrowDownUp className="h-4 w-4 text-secondary" />}
-          title="Document shared with third party"
-          description="Passport shared with Travel Agency Ltd."
-          timestamp="Yesterday"
-        />
-        <ActivityItem
-          icon={<FileCheck className="h-4 w-4 text-identity-green" />}
-          title="New document verified"
-          description="Address proof verified and added to your identity"
-          timestamp="May 16, 2025"
-        />
+        {activities.length > 0 ? (
+          activities.slice(0, 5).map((activity, index) => (
+            <ActivityItem
+              key={index}
+              icon={getActivityIcon(activity.activity_type)}
+              title={activity.activity_description}
+              description={`Activity logged for ${activity.activity_type}`}
+              timestamp={new Date(activity.created_at).toLocaleDateString()}
+              hasAction={true}
+            />
+          ))
+        ) : (
+          <div className="py-4 text-center text-muted-foreground">
+            No recent activities
+          </div>
+        )}
       </CardContent>
     </Card>
   );

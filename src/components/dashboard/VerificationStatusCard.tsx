@@ -14,6 +14,11 @@ interface StatusItemProps {
   status: "verified" | "pending" | "warning" | "rejected" | "processing";
 }
 
+interface VerificationStatusCardProps {
+  documents: any[];
+  biometrics: any[];
+}
+
 function StatusItem({ title, date, status }: StatusItemProps) {
   const getStatusIcon = () => {
     switch (status) {
@@ -41,7 +46,21 @@ function StatusItem({ title, date, status }: StatusItemProps) {
   );
 }
 
-export function VerificationStatusCard() {
+export function VerificationStatusCard({ documents, biometrics }: VerificationStatusCardProps) {
+  // Combine and sort all verifications by date
+  const allVerifications = [
+    ...documents.map(doc => ({
+      title: `${doc.document_type} Verification`,
+      date: new Date(doc.created_at).toLocaleDateString(),
+      status: doc.status as any
+    })),
+    ...biometrics.map(bio => ({
+      title: `${bio.biometric_type} Verification`,
+      date: new Date(bio.created_at).toLocaleDateString(),
+      status: bio.status as any
+    }))
+  ].slice(0, 5); // Show only latest 5
+
   return (
     <Card>
       <CardHeader>
@@ -49,31 +68,20 @@ export function VerificationStatusCard() {
         <CardDescription>Recent verification activities</CardDescription>
       </CardHeader>
       <CardContent className="divide-y">
-        <StatusItem
-          title="Passport Verification Completed"
-          date="Today, 10:42 AM"
-          status="verified"
-        />
-        <StatusItem
-          title="Biometric Authentication"
-          date="In progress..."
-          status="processing"
-        />
-        <StatusItem
-          title="Address Proof Document"
-          date="Awaiting review"
-          status="pending"
-        />
-        <StatusItem
-          title="Unusual Login Location"
-          date="Yesterday, 11:23 PM"
-          status="warning"
-        />
-        <StatusItem
-          title="Identity Card Submission"
-          date="May 16, 2025"
-          status="rejected"
-        />
+        {allVerifications.length > 0 ? (
+          allVerifications.map((item, index) => (
+            <StatusItem
+              key={index}
+              title={item.title}
+              date={item.date}
+              status={item.status}
+            />
+          ))
+        ) : (
+          <div className="py-4 text-center text-muted-foreground">
+            No verification activities yet
+          </div>
+        )}
       </CardContent>
     </Card>
   );
